@@ -3,7 +3,6 @@ package main
 import (
 	"flag"
 	"fmt"
-	"time"
   "net/http"
   "io/ioutil"
   "encoding/json"
@@ -62,11 +61,12 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
   if m.Author.ID == "90670438945951744" {
     qTitle, qContent := getQuote()
     myMessage := "Now Exxo, you know what " + qTitle + " always says...\n" + "_" + qContent + "_"
-    s.ChannelMessageSend(c.ID, myMessage)
+    _, err := s.ChannelMessageSend(c.ID, myMessage)
+    if err != nil {
+      fmt.Println("Unable to send message to channel ", c.ID, err.Error())
+      return
+    }
   }
-	// Print message to stdout.
-	fmt.Printf("%20s %20s %20s > %s\n", m.ChannelID, time.Now().Format(time.Stamp), m.Author.Username, m.Content)
-
 }
 
 func getQuote() (qTitle, qContent string) {
@@ -77,11 +77,22 @@ func getQuote() (qTitle, qContent string) {
   htmlTagRegex := regexp.MustCompile("<.+?>")
   resp, err := http.Get(quoteGenUrl)
   if err != nil {
+    fmt.Println("Unable to get quote from " + quoteGenUrl)
+    fmt.Println(err.Error())
     return
   }
   var myQuote randQuote
   body, err := ioutil.ReadAll(resp.Body)
-  body = body[1:len(body)-1]
-  json.Unmarshal(body, &myQuote)
+  if err != nil {
+    fmt.Println("Unable to read response from " + quoteGenUrl)
+    fmt.Println(err.Error())
+    return
+  }
+  err = json.Unmarshal(body, &myQuote)
+  if err != nil {
+    fmt.Println("Unable to parse JSON from " + quoteGenUrl)
+    fmt.Println(err.Error())
+    return
+  }
   return myQuote.Title, htmlTagRegex.ReplaceAllString(html.UnescapeString(myQuote.Content), "")
 }
