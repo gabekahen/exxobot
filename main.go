@@ -59,7 +59,7 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
   }
   // func (s *Session) ChannelMessageEdit(channelID, messageID, content string) (st *Message, err error) {
   //g, err := s.State.Guild(c.GuildID)
-  if m.Author.ID == "84817856088252416" {
+  if m.Author.ID == "90670438945951744" {
     fmt.Println(m.Author.Username, m.ID, c.ID, m.Content)
     qTitle, qContent := getQuote()
     myMessage := "Now Exxo, you know what " + qTitle + " always says...\n" + "_" + qContent + "_"
